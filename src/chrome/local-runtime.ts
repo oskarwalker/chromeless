@@ -391,7 +391,7 @@ export default class LocalRuntime {
     const data = await screenshot(this.client, selector)
 
     if (isS3Configured()) {
-      return await uploadToS3(data, 'image/png')
+      return await uploadToS3(data, options && options.fileNameS3, 'image/png')
     } else {
       return writeToFile(data, 'png', options && options.filePath)
     }
@@ -403,11 +403,14 @@ export default class LocalRuntime {
 
   // Returns the S3 url or local file path
   async returnPdf(options?: PdfOptions): Promise<string> {
-    const { filePath, ...cdpOptions } = options || { filePath: undefined }
+    const { filePath, fileNameS3, ...cdpOptions } = options || {
+      filePath: undefined,
+      fileNameS3: undefined,
+    }
     const data = await pdf(this.client, cdpOptions)
 
     if (isS3Configured()) {
-      return await uploadToS3(data, 'application/pdf')
+      return await uploadToS3(data, fileNameS3, 'application/pdf')
     } else {
       return writeToFile(data, 'pdf', filePath)
     }
